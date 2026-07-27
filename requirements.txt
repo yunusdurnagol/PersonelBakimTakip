@@ -1,0 +1,15 @@
+pyside6
+
+sqlalchemy
+
+psycopg[binary]
+
+pydantic
+
+openpyxl
+
+pandas
+
+reportlab
+
+python-dotenv
