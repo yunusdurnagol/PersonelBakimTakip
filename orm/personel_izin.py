@@ -2,7 +2,7 @@
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
 Dosya      : orm/personel_izin.py
-Açıklama   : Personel izin kayıtları
+Açıklama   : Personel İzin ORM Modeli
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
@@ -18,6 +18,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
+
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
@@ -30,29 +31,43 @@ if TYPE_CHECKING:
 
 class PersonelIzin(BaseModel):
     """
-    Personelin kullandığı izin kayıtları.
+    Personel izin bilgileri.
     """
 
     __tablename__ = "personel_izinleri"
 
+    # =====================================================
+    # Foreign Key
+    # =====================================================
+
     personel_id: Mapped[int] = mapped_column(
         ForeignKey("personeller.id"),
         nullable=False,
+        index=True,
     )
 
-    baslangic_tarihi: Mapped[date] = mapped_column(
+    # =====================================================
+    # İzin Bilgileri
+    # =====================================================
+
+    izin_baslangic: Mapped[date] = mapped_column(
         Date,
         nullable=False,
     )
 
-    bitis_tarihi: Mapped[date] = mapped_column(
+    izin_bitis: Mapped[date] = mapped_column(
         Date,
         nullable=False,
     )
 
-    kullanilan_gun: Mapped[int] = mapped_column(
+    izin_gun_sayisi: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
+    )
+
+    izin_nedeni: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
     )
 
     aciklama: Mapped[str | None] = mapped_column(
@@ -60,9 +75,18 @@ class PersonelIzin(BaseModel):
         nullable=True,
     )
 
+    # =====================================================
+    # Relationship
+    # =====================================================
+
     personel: Mapped["Personel"] = relationship(
         back_populates="izinler",
+        lazy="selectin",
     )
+
+    # =====================================================
+    # Debug
+    # =====================================================
 
     def __repr__(self) -> str:
 
@@ -70,5 +94,6 @@ class PersonelIzin(BaseModel):
             f"<PersonelIzin("
             f"id={self.id}, "
             f"personel_id={self.personel_id}, "
-            f"gun={self.kullanilan_gun})>"
+            f"baslangic={self.izin_baslangic}, "
+            f"bitis={self.izin_bitis})>"
         )

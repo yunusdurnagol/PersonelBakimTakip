@@ -4,23 +4,24 @@ Proje      : Personel ve Bakım Yönetim Sistemi
 Dosya      : repositories/personel_repository.py
 Açıklama   : Personel Repository
 Yazar      : Yunus Durnagöl
-Sürüm      : 1.0.0
+Sürüm      : 3.0.0
 ---------------------------------------------------------
 """
 
 from __future__ import annotations
 
-from sqlalchemy import select
+from datetime import date
+from datetime import timedelta
+
+from sqlalchemy import extract
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from orm.personel import Personel
-
 from repositories.base_repository import BaseRepository
 
 
-class PersonelRepository(
-    BaseRepository[Personel]
-):
+class PersonelRepository(BaseRepository[Personel]):
     """
     Personel Repository
     """
@@ -35,112 +36,108 @@ class PersonelRepository(
             model=Personel,
         )
 
-    # ---------------------------------------------------------
-    # Sicil No
-    # ---------------------------------------------------------
+    # =====================================================
+    # GET METHODS
+    # =====================================================
 
     def get_by_sicil_no(
         self,
         sicil_no: str,
     ) -> Personel | None:
 
-        statement = (
-            select(Personel)
-            .where(
-                Personel.sicil_no == sicil_no,
-                Personel.is_deleted == False,
-            )
+        return self.get(
+            sicil_no=sicil_no,
         )
 
-        return self.session.scalar(statement)
-
-    # ---------------------------------------------------------
-    # TC Kimlik No
-    # ---------------------------------------------------------
-
-    def get_by_tc(
+    def get_by_tc_kimlik_no(
         self,
-        tc: str,
+        tc_kimlik_no: str,
     ) -> Personel | None:
 
-        statement = (
-            select(Personel)
-            .where(
-                Personel.tc_kimlik_no == tc,
-                Personel.is_deleted == False,
-            )
+        return self.get(
+            tc_kimlik_no=tc_kimlik_no,
         )
 
-        return self.session.scalar(statement)
-
-    # ---------------------------------------------------------
-    # Ada Göre Arama
-    # ---------------------------------------------------------
-
-    def search_by_name(
+    def get_by_iban(
         self,
-        text: str,
+        iban: str,
+    ) -> Personel | None:
+
+        return self.get(
+            iban=iban,
+        )
+
+    # =====================================================
+    # PERSONEL LİSTELERİ
+    # =====================================================
+
+    def get_by_pozisyon(
+        self,
+        pozisyon_id: int,
     ) -> list[Personel]:
 
-        statement = (
-            select(Personel)
+        stmt = (
+            self.active_stmt()
             .where(
-                Personel.ad.ilike(f"%{text}%"),
-                Personel.is_deleted == False,
+                Personel.pozisyon_id == pozisyon_id
             )
             .order_by(
                 Personel.ad,
-            )
-        )
-
-        return list(
-            self.session.scalars(statement)
-        )
-
-    # ---------------------------------------------------------
-    # Soyada Göre Arama
-    # ---------------------------------------------------------
-
-    def search_by_surname(
-        self,
-        text: str,
-    ) -> list[Personel]:
-
-        statement = (
-            select(Personel)
-            .where(
-                Personel.soyad.ilike(f"%{text}%"),
-                Personel.is_deleted == False,
-            )
-            .order_by(
                 Personel.soyad,
             )
         )
 
-        return list(
-            self.session.scalars(statement)
+        return self.all(stmt)
+
+    def get_emekliler(
+        self,
+    ) -> list[Personel]:
+
+        stmt = (
+            self.active_stmt()
+            .where(
+                Personel.emekli_mi.is_(True)
+            )
+            .order_by(
+                Personel.ad,
+                Personel.soyad,
+            )
         )
 
-    # ---------------------------------------------------------
-    # Ad Soyad
-    # ---------------------------------------------------------
+        return self.all(stmt)
+
+    def get_aktif_personeller(
+        self,
+    ) -> list[Personel]:
+
+        stmt = (
+            self.active_stmt()
+            .order_by(
+                Personel.ad,
+                Personel.soyad,
+            )
+        )
+
+        return self.all(stmt)
+
+    # =====================================================
+    # SEARCH
+    # =====================================================
 
     def search(
         self,
         text: str,
     ) -> list[Personel]:
 
-        statement = (
-            select(Personel)
+        stmt = (
+            self.active_stmt()
             .where(
-                (
-                    Personel.ad.ilike(f"%{text}%")
+                or_(
+                    Personel.ad.ilike(f"%{text}%"),
+                    Personel.soyad.ilike(f"%{text}%"),
+                    Personel.sicil_no.ilike(f"%{text}%"),
+                    Personel.tc_kimlik_no.ilike(f"%{text}%"),
                 )
-                |
-                (
-                    Personel.soyad.ilike(f"%{text}%")
-                ),
-                Personel.is_deleted == False,
             )
             .order_by(
                 Personel.ad,
@@ -148,6 +145,146 @@ class PersonelRepository(
             )
         )
 
-        return list(
-            self.session.scalars(statement)
+        return self.all(stmt)
+
+    def toplam_aktif_personel(self) -> int:
+
+        return self.count_stmt(
+            self.active_stmt()
         )
+
+        # =====================================================
+    # DOĞUM GÜNÜ
+    # =====================================================
+
+    def dogum_gunu_olanlar(
+        self,
+        tarih: date | None = None,
+    ) -> list[Personel]:
+
+        if tarih is None:
+            tarih = date.today()
+
+        stmt = (
+            self.active_stmt()
+            .where(
+                extract(
+                    "day",
+                    Personel.dogum_tarihi,
+                ) == tarih.day
+            )
+            .where(
+                extract(
+                    "month",
+                    Personel.dogum_tarihi,
+                ) == tarih.month
+            )
+            .order_by(
+                Personel.ad,
+                Personel.soyad,
+            )
+        )
+
+        return self.all(stmt)
+
+    # =====================================================
+    # İŞE YENİ BAŞLAYANLAR
+    # =====================================================
+
+    def ise_yeni_baslayanlar(
+        self,
+        gun: int = 30,
+    ) -> list[Personel]:
+
+        tarih = date.today() - timedelta(days=gun)
+
+        stmt = (
+            self.active_stmt()
+            .where(
+                Personel.ise_giris_tarihi >= tarih
+            )
+            .order_by(
+                Personel.ise_giris_tarihi.desc()
+            )
+        )
+
+        return self.all(stmt)
+
+    # =====================================================
+    # YAKLAŞAN İZİN HAKKI
+    # =====================================================
+
+    def yaklasan_izin_hakki(
+        self,
+        gun: int = 30,
+    ) -> list[Personel]:
+
+        hedef = date.today() + timedelta(days=gun)
+
+        stmt = (
+            self.active_stmt()
+            .where(
+                extract(
+                    "month",
+                    Personel.ise_giris_tarihi,
+                ) == hedef.month
+            )
+            .where(
+                extract(
+                    "day",
+                    Personel.ise_giris_tarihi,
+                ) <= hedef.day
+            )
+            .order_by(
+                Personel.ise_giris_tarihi
+            )
+        )
+
+        return self.all(stmt)
+
+    # =====================================================
+    # KONTROLLER
+    # =====================================================
+
+    def sicil_no_var_mi(
+        self,
+        sicil_no: str,
+    ) -> bool:
+
+        return self.exists(
+            Personel.sicil_no == sicil_no
+        )
+
+    def tc_var_mi(
+        self,
+        tc_kimlik_no: str,
+    ) -> bool:
+
+        return self.exists(
+            Personel.tc_kimlik_no == tc_kimlik_no
+        )
+
+    def iban_var_mi(
+        self,
+        iban: str,
+    ) -> bool:
+
+        return self.exists(
+            Personel.iban == iban
+        )
+
+    # =====================================================
+    # İSTATİSTİKLER
+    # =====================================================
+
+    def toplam_personel(self) -> int:
+
+        return self.count()
+
+    def toplam_emekli(self) -> int:
+
+        return self.count(
+            Personel.emekli_mi.is_(True)
+        )
+
+    

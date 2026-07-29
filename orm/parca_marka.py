@@ -1,8 +1,8 @@
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
-Dosya      : orm/personel_evrak.py
-Açıklama   : Personel Evrak ORM Modeli
+Dosya      : orm/parca_marka.py
+Açıklama   : Parça Marka ORM Modeli
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
@@ -10,11 +10,8 @@ Sürüm      : 1.0.0
 
 from __future__ import annotations
 
-from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Date
-from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy import Text
 
@@ -25,51 +22,25 @@ from sqlalchemy.orm import relationship
 from orm.base_model import BaseModel
 
 if TYPE_CHECKING:
-    from orm.personel import Personel
+    from orm.parca import Parca
 
 
-class PersonelEvrak(BaseModel):
+class ParcaMarka(BaseModel):
     """
-    Personel evrak bilgileri.
-
-    Dosyanın kendisi veritabanında tutulmaz.
-    Veritabanında yalnızca dosya yolu saklanır.
+    Yedek parça markaları.
     """
 
-    __tablename__ = "personel_evraklari"
+    __tablename__ = "parca_markalari"
 
     # =====================================================
-    # Foreign Key
+    # Genel Bilgiler
     # =====================================================
 
-    personel_id: Mapped[int] = mapped_column(
-        ForeignKey("personeller.id"),
+    ad: Mapped[str] = mapped_column(
+        String(100),
+        unique=True,
         nullable=False,
         index=True,
-    )
-
-    # =====================================================
-    # Evrak Bilgileri
-    # =====================================================
-
-    evrak_adi: Mapped[str] = mapped_column(
-        String(150),
-        nullable=False,
-    )
-
-    dosya_adi: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-    )
-
-    dosya_yolu: Mapped[str] = mapped_column(
-        String(500),
-        nullable=False,
-    )
-
-    belge_tarihi: Mapped[date | None] = mapped_column(
-        Date,
-        nullable=True,
     )
 
     aciklama: Mapped[str | None] = mapped_column(
@@ -81,10 +52,18 @@ class PersonelEvrak(BaseModel):
     # Relationship
     # =====================================================
 
-    personel: Mapped["Personel"] = relationship(
-        back_populates="evraklar",
+    parcalar: Mapped[list["Parca"]] = relationship(
+        back_populates="marka",
         lazy="selectin",
     )
+
+    # =====================================================
+    # Properties
+    # =====================================================
+
+    @property
+    def parca_sayisi(self) -> int:
+        return len(self.parcalar)
 
     # =====================================================
     # Debug
@@ -93,7 +72,7 @@ class PersonelEvrak(BaseModel):
     def __repr__(self) -> str:
 
         return (
-            f"<PersonelEvrak("
+            f"<ParcaMarka("
             f"id={self.id}, "
-            f"evrak_adi='{self.evrak_adi}')>"
+            f"ad='{self.ad}')>"
         )

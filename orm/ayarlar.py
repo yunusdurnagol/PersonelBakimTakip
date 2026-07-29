@@ -1,8 +1,8 @@
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
-Dosya      : orm/pozisyon.py
-Açıklama   : Pozisyon ORM Modeli
+Dosya      : orm/ayarlar.py
+Açıklama   : Uygulama Ayarları ORM Modeli
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
@@ -10,67 +10,77 @@ Sürüm      : 1.0.0
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+from sqlalchemy import Boolean
+from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import Text
+
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
 
 from orm.base_model import BaseModel
 
-if TYPE_CHECKING:
-    from orm.personel import Personel
 
-
-class Pozisyon(BaseModel):
+class Ayarlar(BaseModel):
     """
-    Personel pozisyonları.
+    Uygulama genel ayarları.
     """
 
-    __tablename__ = "pozisyonlar"
+    __tablename__ = "ayarlar"
 
     # =====================================================
-    # Genel Bilgiler
+    # Firma Bilgileri
     # =====================================================
 
-    ad: Mapped[str] = mapped_column(
-        String(100),
-        unique=True,
+    firma_adi: Mapped[str] = mapped_column(
+        String(200),
         nullable=False,
-        index=True,
     )
 
-    aciklama: Mapped[str | None] = mapped_column(
-        Text,
+    firma_logo: Mapped[str | None] = mapped_column(
+        String(500),
         nullable=True,
     )
 
     # =====================================================
-    # Relationship
+    # Personel Ayarları
     # =====================================================
 
-    personeller: Mapped[list["Personel"]] = relationship(
-        back_populates="pozisyon",
-        lazy="selectin",
+    varsayilan_yillik_izin: Mapped[int] = mapped_column(
+        Integer,
+        default=14,
+        nullable=False,
+    )
+
+    emekli_yillik_izin: Mapped[int] = mapped_column(
+        Integer,
+        default=20,
+        nullable=False,
+    )
+
+    elli_yas_ustu_izin: Mapped[int] = mapped_column(
+        Integer,
+        default=20,
+        nullable=False,
     )
 
     # =====================================================
-    # Properties
+    # Sistem Ayarları
     # =====================================================
 
-    @property
-    def personel_sayisi(self) -> int:
-        return len(self.personeller)
+    otomatik_yedekleme: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
 
     # =====================================================
     # Debug
     # =====================================================
 
     def __repr__(self) -> str:
+
         return (
-            f"<Pozisyon("
+            f"<Ayarlar("
             f"id={self.id}, "
-            f"ad='{self.ad}')>"
+            f"firma='{self.firma_adi}')>"
         )

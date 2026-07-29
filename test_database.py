@@ -11,18 +11,31 @@ Sürüm      : 1.0.0
 from sqlalchemy import text
 
 from core.database import get_session
-
+from orm.personel import Personel
+from orm.pozisyon import Pozisyon
 
 def main():
 
     try:
 
         with get_session() as db:
-
+               
             print("=" * 50)
             print("VERİTABANI BAĞLANTI TESTİ")
             print("=" * 50)
+            personeller = db.query(Personel).all()
 
+
+            for p in personeller:
+                print(
+                    p.id,
+                    p.ad,
+                    p.soyad,
+                    p.pozisyon,"deneme"
+                )
+
+
+            
             sonuc = db.execute(
                 text("SELECT version();")
             )

@@ -1,8 +1,8 @@
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
-Dosya      : orm/pozisyon.py
-Açıklama   : Pozisyon ORM Modeli
+Dosya      : orm/parca_muadili.py
+Açıklama   : Parça Muadili ORM Modeli
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
-from sqlalchemy import Text
+from sqlalchemy import ForeignKey
+
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
@@ -21,56 +21,56 @@ from sqlalchemy.orm import relationship
 from orm.base_model import BaseModel
 
 if TYPE_CHECKING:
-    from orm.personel import Personel
+    from orm.parca import Parca
 
 
-class Pozisyon(BaseModel):
+class ParcaMuadili(BaseModel):
     """
-    Personel pozisyonları.
+    Parçaların muadil ilişkilerini tutar.
     """
 
-    __tablename__ = "pozisyonlar"
+    __tablename__ = "parca_muadilleri"
 
     # =====================================================
-    # Genel Bilgiler
+    # Foreign Keys
     # =====================================================
 
-    ad: Mapped[str] = mapped_column(
-        String(100),
-        unique=True,
+    parca_id: Mapped[int] = mapped_column(
+        ForeignKey("parcalar.id"),
         nullable=False,
         index=True,
     )
 
-    aciklama: Mapped[str | None] = mapped_column(
-        Text,
-        nullable=True,
+    muadil_parca_id: Mapped[int] = mapped_column(
+        ForeignKey("parcalar.id"),
+        nullable=False,
+        index=True,
     )
 
     # =====================================================
     # Relationship
     # =====================================================
 
-    personeller: Mapped[list["Personel"]] = relationship(
-        back_populates="pozisyon",
+    parca: Mapped["Parca"] = relationship(
+        foreign_keys=[parca_id],
+        back_populates="muadiller",
         lazy="selectin",
     )
 
-    # =====================================================
-    # Properties
-    # =====================================================
-
-    @property
-    def personel_sayisi(self) -> int:
-        return len(self.personeller)
+    muadil_parca: Mapped["Parca"] = relationship(
+        foreign_keys=[muadil_parca_id],
+        lazy="selectin",
+    )
 
     # =====================================================
     # Debug
     # =====================================================
 
     def __repr__(self) -> str:
+
         return (
-            f"<Pozisyon("
+            f"<ParcaMuadili("
             f"id={self.id}, "
-            f"ad='{self.ad}')>"
+            f"parca_id={self.parca_id}, "
+            f"muadil_parca_id={self.muadil_parca_id})>"
         )

@@ -28,31 +28,33 @@ from orm.base_model import BaseModel
 
 if TYPE_CHECKING:
     from orm.pozisyon import Pozisyon
-    from orm.personel_izin import PersonelIzin
     from orm.personel_evrak import PersonelEvrak
+    from orm.personel_izin import PersonelIzin
 
 
 class Personel(BaseModel):
     """
-    Personel Bilgileri
+    Personel bilgileri.
     """
 
     __tablename__ = "personeller"
 
     # =====================================================
-    # Genel Bilgiler
+    # Kimlik Bilgileri
     # =====================================================
 
     sicil_no: Mapped[str] = mapped_column(
         String(20),
         unique=True,
         nullable=False,
+        index=True,
     )
 
     tc_kimlik_no: Mapped[str | None] = mapped_column(
         String(11),
         unique=True,
         nullable=True,
+        index=True,
     )
 
     ad: Mapped[str] = mapped_column(
@@ -65,6 +67,11 @@ class Personel(BaseModel):
         nullable=False,
     )
 
+    cinsiyet: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+    )
+
     dogum_tarihi: Mapped[date | None] = mapped_column(
         Date,
         nullable=True,
@@ -75,13 +82,8 @@ class Personel(BaseModel):
         nullable=True,
     )
 
-    cinsiyet: Mapped[str | None] = mapped_column(
-        String(20),
-        nullable=True,
-    )
-
-    egitim_durumu: Mapped[str | None] = mapped_column(
-        String(100),
+    uyruk: Mapped[str | None] = mapped_column(
+        String(50),
         nullable=True,
     )
 
@@ -90,7 +92,11 @@ class Personel(BaseModel):
         nullable=True,
     )
 
-    # =====================================================
+    egitim_durumu: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+        # =====================================================
     # İş Bilgileri
     # =====================================================
 
@@ -99,18 +105,14 @@ class Personel(BaseModel):
         nullable=False,
     )
 
-    izin_hakki: Mapped[int] = mapped_column(
-        default=14,
-        nullable=False,
-    )
-
     pozisyon_id: Mapped[int] = mapped_column(
         ForeignKey("pozisyonlar.id"),
         nullable=False,
+        index=True,
     )
 
     # =====================================================
-    # İletişim
+    # İletişim Bilgileri
     # =====================================================
 
     telefon: Mapped[str | None] = mapped_column(
@@ -129,7 +131,7 @@ class Personel(BaseModel):
     )
 
     # =====================================================
-    # Maaş
+    # Maaş Bilgileri
     # =====================================================
 
     maas: Mapped[Decimal | None] = mapped_column(
@@ -137,8 +139,13 @@ class Personel(BaseModel):
         nullable=True,
     )
 
+    iban: Mapped[str | None] = mapped_column(
+        String(34),
+        nullable=True,
+    )
+
     # =====================================================
-    # Fotoğraf
+    # Diğer Bilgiler
     # =====================================================
 
     fotograf: Mapped[str | None] = mapped_column(
@@ -146,31 +153,29 @@ class Personel(BaseModel):
         nullable=True,
     )
 
-    # =====================================================
-    # Açıklama
-    # =====================================================
-
     aciklama: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
-
-    # =====================================================
+        # =====================================================
     # Relationship
     # =====================================================
 
     pozisyon: Mapped["Pozisyon"] = relationship(
         back_populates="personeller",
+        lazy="selectin",
     )
 
     izinler: Mapped[list["PersonelIzin"]] = relationship(
         back_populates="personel",
         cascade="all, delete-orphan",
+        lazy="selectin",
     )
 
     evraklar: Mapped[list["PersonelEvrak"]] = relationship(
         back_populates="personel",
         cascade="all, delete-orphan",
+        lazy="selectin",
     )
 
     # =====================================================
@@ -185,7 +190,14 @@ class Personel(BaseModel):
     def tam_ad(self) -> str:
         return self.ad_soyad
 
-    # =====================================================
+    @property
+    def evrak_sayisi(self) -> int:
+        return len(self.evraklar)
+
+    @property
+    def izin_sayisi(self) -> int:
+        return len(self.izinler)
+        # =====================================================
     # Debug
     # =====================================================
 
