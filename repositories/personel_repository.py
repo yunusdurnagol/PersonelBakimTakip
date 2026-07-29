@@ -89,22 +89,6 @@ class PersonelRepository(BaseRepository[Personel]):
 
         return self.all(stmt)
 
-    def get_emekliler(
-        self,
-    ) -> list[Personel]:
-
-        stmt = (
-            self.active_stmt()
-            .where(
-                Personel.emekli_mi.is_(True)
-            )
-            .order_by(
-                Personel.ad,
-                Personel.soyad,
-            )
-        )
-
-        return self.all(stmt)
 
     def get_aktif_personeller(
         self,
@@ -281,10 +265,5 @@ class PersonelRepository(BaseRepository[Personel]):
 
         return self.count()
 
-    def toplam_emekli(self) -> int:
-
-        return self.count(
-            Personel.emekli_mi.is_(True)
-        )
 
     

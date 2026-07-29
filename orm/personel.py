@@ -86,7 +86,7 @@ class Personel(BaseModel):
         String(50),
         nullable=True,
     )
-
+    
     medeni_durum: Mapped[str | None] = mapped_column(
         String(50),
         nullable=True,
@@ -104,7 +104,12 @@ class Personel(BaseModel):
         Date,
         nullable=False,
     )
+    izin_hakki: Mapped[int] = mapped_column(
+        default=14,
+        nullable=False,
+        )
 
+    
     pozisyon_id: Mapped[int] = mapped_column(
         ForeignKey("pozisyonlar.id"),
         nullable=False,
