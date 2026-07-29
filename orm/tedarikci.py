@@ -23,7 +23,7 @@ from orm.base_model import BaseModel
 
 if TYPE_CHECKING:
     from orm.parca import Parca
-
+    from orm.parca_hareket import ParcaHareket
 
 class Tedarikci(BaseModel):
     """

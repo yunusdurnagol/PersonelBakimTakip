@@ -35,11 +35,11 @@ class PozisyonRepository(BaseRepository[Pozisyon]):
 
     def get_by_ad(
         self,
-        pozisyon_adi: str,
+        ad: str,
     ) -> Pozisyon | None:
 
         return self.get(
-            pozisyon_adi=pozisyon_adi,
+            ad=ad,
         )
 
     # =====================================================
@@ -54,10 +54,10 @@ class PozisyonRepository(BaseRepository[Pozisyon]):
         stmt = (
             self.active_stmt()
             .where(
-                Pozisyon.pozisyon_adi.ilike(f"%{text}%")
+                Pozisyon.ad.ilike(f"%{text}%")
             )
             .order_by(
-                Pozisyon.pozisyon_adi
+                Pozisyon.ad
             )
         )
 
@@ -69,11 +69,11 @@ class PozisyonRepository(BaseRepository[Pozisyon]):
 
     def ad_var_mi(
         self,
-        pozisyon_adi: str,
+        ad: str,
     ) -> bool:
 
         return self.exists(
-            Pozisyon.pozisyon_adi == pozisyon_adi
+            Pozisyon.ad == ad
         )
 
     # =====================================================

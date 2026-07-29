@@ -26,7 +26,7 @@ from sqlalchemy.orm import Session
 from core.database import Base
 from repositories.page_request import PageRequest
 from repositories.result import PagedResult
-
+from sqlalchemy import Select, select
 T = TypeVar("T", bound=Base)
 
 
@@ -264,16 +264,21 @@ class BaseRepository(Generic[T]):
     # FIRST / LAST
     # =====================================================
 
-    def first(self) -> T | None:
+    def first(
+        self,
+        stmt: Select | None = None,
+    ) -> T | None:
 
-        stmt = select(self.model)
+        if stmt is None:
 
-        if hasattr(self.model, "is_deleted"):
-            stmt = stmt.where(
-                self.model.is_deleted.is_(False)
-            )
+            stmt = select(self.model)
 
-        stmt = stmt.order_by(self.model.id.asc()).limit(1)
+            if hasattr(self.model, "is_deleted"):
+                stmt = stmt.where(
+                    self.model.is_deleted.is_(False)
+                )
+
+            stmt = stmt.order_by(self.model.id.asc()).limit(1)
 
         return self.session.scalar(stmt)
 
@@ -486,6 +491,23 @@ class BaseRepository(Generic[T]):
 
         return True
 
+    def get_deleted(
+        self,
+        **filters,
+    ) -> T | None:
+
+        stmt = (
+            select(self.model)
+            .where(self.model.is_deleted.is_(True))
+        )
+
+        for key, value in filters.items():
+            stmt = stmt.where(
+                getattr(self.model, key) == value
+            )
+
+        return self.first(stmt)
+
     # =====================================================
     # SOFT DELETE
     # =====================================================
@@ -530,7 +552,20 @@ class BaseRepository(Generic[T]):
         )
 
         return True
+    def hard_delete(
+    self,
+    entity: T,
+    *,
+    commit: bool = True,
+        ) -> None:
+        """
+        Kaydı veritabanından tamamen siler.
+        """
 
+        self.session.delete(entity)
+
+        if commit:
+            self.session.commit()
     # =====================================================
     # RESTORE
     # =====================================================

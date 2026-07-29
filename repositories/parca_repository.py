@@ -4,11 +4,12 @@ Proje      : Personel ve Bakım Yönetim Sistemi
 Dosya      : repositories/parca_repository.py
 Açıklama   : Parça Repository
 Yazar      : Yunus Durnagöl
-Sürüm      : 1.0.0
+Sürüm      : 2.0.0
 ---------------------------------------------------------
 """
 
 from sqlalchemy import or_
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 
@@ -35,22 +36,22 @@ class ParcaRepository(BaseRepository[Parca]):
     # GET METHODS
     # =====================================================
 
-    def get_by_parca_kodu(
+    def get_by_stok_kodu(
         self,
-        parca_kodu: str,
+        stok_kodu: str,
     ) -> Parca | None:
 
         return self.get(
-            parca_kodu=parca_kodu,
+            stok_kodu=stok_kodu,
         )
 
-    def get_by_barkod(
+    def get_by_orijinal_kod(
         self,
-        barkod: str,
+        orijinal_kod: str,
     ) -> Parca | None:
 
         return self.get(
-            barkod=barkod,
+            orijinal_kod=orijinal_kod,
         )
 
     # =====================================================
@@ -109,7 +110,7 @@ class ParcaRepository(BaseRepository[Parca]):
         return self.all(stmt)
 
     # =====================================================
-    # RELATIONSHIP
+    # RELATIONS
     # =====================================================
 
     def get_with_relations(
@@ -118,17 +119,18 @@ class ParcaRepository(BaseRepository[Parca]):
     ) -> Parca | None:
 
         stmt = (
-            self.stmt()
+            select(Parca)
             .options(
                 joinedload(Parca.kategori),
                 joinedload(Parca.marka),
                 joinedload(Parca.tedarikci),
+                joinedload(Parca.hareketler),
+                joinedload(Parca.muadiller),
+                joinedload(Parca.kullanim_bolumleri),
             )
             .where(
-                Parca.id == parca_id
-            )
-            .where(
-                Parca.is_deleted.is_(False)
+                Parca.id == parca_id,
+                Parca.is_deleted.is_(False),
             )
         )
 
@@ -147,9 +149,10 @@ class ParcaRepository(BaseRepository[Parca]):
             self.active_stmt()
             .where(
                 or_(
-                    Parca.parca_kodu.ilike(f"%{text}%"),
+                    Parca.stok_kodu.ilike(f"%{text}%"),
+                    Parca.orijinal_kod.ilike(f"%{text}%"),
                     Parca.parca_adi.ilike(f"%{text}%"),
-                    Parca.barkod.ilike(f"%{text}%"),
+                    Parca.model.ilike(f"%{text}%"),
                 )
             )
             .order_by(
@@ -158,3 +161,62 @@ class ParcaRepository(BaseRepository[Parca]):
         )
 
         return self.all(stmt)
+
+    # =====================================================
+    # KONTROLLER
+    # =====================================================
+
+    def stok_kodu_var_mi(
+        self,
+        stok_kodu: str,
+    ) -> bool:
+
+        return self.exists(
+            Parca.stok_kodu == stok_kodu
+        )
+
+    def orijinal_kod_var_mi(
+        self,
+        orijinal_kod: str,
+    ) -> bool:
+
+        return self.exists(
+            Parca.orijinal_kod == orijinal_kod
+        )
+
+    # =====================================================
+    # İSTATİSTİKLER
+    # =====================================================
+
+    def toplam_parca(
+        self,
+    ) -> int:
+
+        return self.count()
+
+    def kategoriye_gore_adet(
+        self,
+        kategori_id: int,
+    ) -> int:
+
+        return self.count(
+            Parca.kategori_id == kategori_id
+        )
+
+    def markaya_gore_adet(
+        self,
+        marka_id: int,
+    ) -> int:
+
+        return self.count(
+            Parca.marka_id == marka_id
+        )
+
+    def tedarikciye_gore_adet(
+        self,
+        tedarikci_id: int,
+    ) -> int:
+
+        return self.count(
+            Parca.tedarikci_id == tedarikci_id
+        )
