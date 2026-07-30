@@ -1,33 +1,29 @@
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
-Dosya      : repositories/parca_kategori_repository.py
-Açıklama   : Parça Kategori Repository
+Dosya      : services/parca_kategori_service.py
+Açıklama   : Parça Kategori Service
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
 """
 
-from sqlalchemy.orm import Session
-
 from orm.parca_kategori import ParcaKategori
-from repositories.base_repository import BaseRepository
+from repositories.parca_kategori_repository import ParcaKategoriRepository
+from services.base_service import BaseService
 
 
-class ParcaKategoriRepository(BaseRepository[ParcaKategori]):
+class ParcaKategoriService(BaseService[ParcaKategori]):
     """
-    Parça Kategori Repository
+    Parça Kategori Service
     """
 
     def __init__(
         self,
-        session: Session,
+        repository: ParcaKategoriRepository,
     ) -> None:
 
-        super().__init__(
-            session=session,
-            model=ParcaKategori,
-        )
+        super().__init__(repository)
 
     # =====================================================
     # GET METHODS
@@ -38,9 +34,7 @@ class ParcaKategoriRepository(BaseRepository[ParcaKategori]):
         ad: str,
     ) -> ParcaKategori | None:
 
-        return self.get(
-            ad=ad,
-        )
+        return self.repository.get_by_kategori_adi(ad)
 
     # =====================================================
     # SEARCH
@@ -51,19 +45,7 @@ class ParcaKategoriRepository(BaseRepository[ParcaKategori]):
         text: str,
     ) -> list[ParcaKategori]:
 
-        stmt = (
-            self.active_stmt()
-            .where(
-                ParcaKategori.ad.ilike(
-                    f"%{text}%"
-                )
-            )
-            .order_by(
-                ParcaKategori.ad
-            )
-        )
-
-        return self.all(stmt)
+        return self.repository.search(text)
 
     # =====================================================
     # KONTROLLER
@@ -74,9 +56,7 @@ class ParcaKategoriRepository(BaseRepository[ParcaKategori]):
         ad: str,
     ) -> bool:
 
-        return self.exists(
-            ParcaKategori.ad == ad
-        )
+        return self.repository.kategori_var_mi(ad)
 
     # =====================================================
     # İSTATİSTİKLER
@@ -86,4 +66,4 @@ class ParcaKategoriRepository(BaseRepository[ParcaKategori]):
         self,
     ) -> int:
 
-        return self.count()
+        return self.repository.toplam_kategori()

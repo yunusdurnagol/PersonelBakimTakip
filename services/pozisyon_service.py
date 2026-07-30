@@ -1,46 +1,42 @@
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
-Dosya      : repositories/parca_marka_repository.py
-Açıklama   : Parça Marka Repository
+Dosya      : services/pozisyon_service.py
+Açıklama   : Pozisyon Service
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
 """
 
-from sqlalchemy.orm import Session
+from __future__ import annotations
 
-from orm.parca_marka import ParcaMarka
-from repositories.base_repository import BaseRepository
+from orm.pozisyon import Pozisyon
+from repositories.pozisyon_repository import PozisyonRepository
+from services.base_service import BaseService
 
 
-class ParcaMarkaRepository(BaseRepository[ParcaMarka]):
+class PozisyonService(BaseService[Pozisyon]):
     """
-    Parça Marka Repository
+    Pozisyon Service
     """
 
     def __init__(
         self,
-        session: Session,
+        repository: PozisyonRepository,
     ) -> None:
 
-        super().__init__(
-            session=session,
-            model=ParcaMarka,
-        )
+        super().__init__(repository)
 
     # =====================================================
     # GET METHODS
     # =====================================================
 
-    def get_by_marka_adi(
+    def get_by_ad(
         self,
         ad: str,
-    ) -> ParcaMarka | None:
+    ) -> Pozisyon | None:
 
-        return self.get(
-            ad=ad,
-        )
+        return self.repository.get_by_ad(ad)
 
     # =====================================================
     # SEARCH
@@ -49,41 +45,27 @@ class ParcaMarkaRepository(BaseRepository[ParcaMarka]):
     def search(
         self,
         text: str,
-    ) -> list[ParcaMarka]:
+    ) -> list[Pozisyon]:
 
-        stmt = (
-            self.active_stmt()
-            .where(
-                ParcaMarka.ad.ilike(
-                    f"%{text}%"
-                )
-            )
-            .order_by(
-                ParcaMarka.ad
-            )
-        )
-
-        return self.all(stmt)
+        return self.repository.search(text)
 
     # =====================================================
     # KONTROLLER
     # =====================================================
 
-    def marka_var_mi(
+    def ad_var_mi(
         self,
         ad: str,
     ) -> bool:
 
-        return self.exists(
-            ParcaMarka.ad == ad
-        )
+        return self.repository.ad_var_mi(ad)
 
     # =====================================================
     # İSTATİSTİKLER
     # =====================================================
 
-    def toplam_marka(
+    def toplam_pozisyon(
         self,
     ) -> int:
 
-        return self.count()
+        return self.repository.toplam_pozisyon()

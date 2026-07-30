@@ -1,33 +1,29 @@
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
-Dosya      : repositories/parca_marka_repository.py
-Açıklama   : Parça Marka Repository
+Dosya      : services/parca_marka_service.py
+Açıklama   : Parça Marka Service
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
 """
 
-from sqlalchemy.orm import Session
-
 from orm.parca_marka import ParcaMarka
-from repositories.base_repository import BaseRepository
+from repositories.parca_marka_repository import ParcaMarkaRepository
+from services.base_service import BaseService
 
 
-class ParcaMarkaRepository(BaseRepository[ParcaMarka]):
+class ParcaMarkaService(BaseService[ParcaMarka]):
     """
-    Parça Marka Repository
+    Parça Marka Service
     """
 
     def __init__(
         self,
-        session: Session,
+        repository: ParcaMarkaRepository,
     ) -> None:
 
-        super().__init__(
-            session=session,
-            model=ParcaMarka,
-        )
+        super().__init__(repository)
 
     # =====================================================
     # GET METHODS
@@ -38,9 +34,7 @@ class ParcaMarkaRepository(BaseRepository[ParcaMarka]):
         ad: str,
     ) -> ParcaMarka | None:
 
-        return self.get(
-            ad=ad,
-        )
+        return self.repository.get_by_marka_adi(ad)
 
     # =====================================================
     # SEARCH
@@ -51,19 +45,7 @@ class ParcaMarkaRepository(BaseRepository[ParcaMarka]):
         text: str,
     ) -> list[ParcaMarka]:
 
-        stmt = (
-            self.active_stmt()
-            .where(
-                ParcaMarka.ad.ilike(
-                    f"%{text}%"
-                )
-            )
-            .order_by(
-                ParcaMarka.ad
-            )
-        )
-
-        return self.all(stmt)
+        return self.repository.search(text)
 
     # =====================================================
     # KONTROLLER
@@ -74,9 +56,7 @@ class ParcaMarkaRepository(BaseRepository[ParcaMarka]):
         ad: str,
     ) -> bool:
 
-        return self.exists(
-            ParcaMarka.ad == ad
-        )
+        return self.repository.marka_var_mi(ad)
 
     # =====================================================
     # İSTATİSTİKLER
@@ -86,4 +66,4 @@ class ParcaMarkaRepository(BaseRepository[ParcaMarka]):
         self,
     ) -> int:
 
-        return self.count()
+        return self.repository.toplam_marka()

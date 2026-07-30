@@ -12,7 +12,6 @@ from repositories.parca_repository import ParcaRepository
 from repositories.parca_kategori_repository import ParcaKategoriRepository
 from repositories.parca_marka_repository import ParcaMarkaRepository
 from repositories.tedarikci_repository import TedarikciRepository
-
 from repositories.makine_repository import MakineRepository
 from repositories.makine_bolumu_repository import MakineBolumuRepository
 
