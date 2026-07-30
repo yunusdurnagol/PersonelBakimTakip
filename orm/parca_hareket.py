@@ -110,3 +110,18 @@ class ParcaHareket(BaseModel):
         "Tedarikci",
         back_populates="parca_hareketleri",
     )
+
+    # =====================================================
+# Debug
+# =====================================================
+
+    def __repr__(self) -> str:
+
+        return (
+            f"<ParcaHareket("
+            f"id={self.id}, "
+            f"parca_id={self.parca_id}, "
+            f"alis_tarihi={self.alis_tarihi}, "
+            f"fatura_no='{self.fatura_no}')>"
+        )
+    

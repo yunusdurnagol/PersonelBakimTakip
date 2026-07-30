@@ -1,33 +1,29 @@
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
-Dosya      : repositories/makine_bolumu_repository.py
-Açıklama   : Makine Bölümü Repository
+Dosya      : services/makine_bolumu_service.py
+Açıklama   : Makine Bölümü Service
 Yazar      : Yunus Durnagöl
 Sürüm      : 1.0.0
 ---------------------------------------------------------
 """
 
-from sqlalchemy.orm import Session
-
 from orm.makine_bolumu import MakineBolumu
-from repositories.base_repository import BaseRepository
+from repositories.makine_bolumu_repository import MakineBolumuRepository
+from services.base_service import BaseService
 
 
-class MakineBolumuRepository(BaseRepository[MakineBolumu]):
+class MakineBolumuService(BaseService[MakineBolumu]):
     """
-    Makine Bölümü Repository
+    Makine Bölümü Service
     """
 
     def __init__(
         self,
-        session: Session,
+        repository: MakineBolumuRepository,
     ) -> None:
 
-        super().__init__(
-            session=session,
-            model=MakineBolumu,
-        )
+        super().__init__(repository)
 
     # =====================================================
     # GET METHODS
@@ -38,9 +34,7 @@ class MakineBolumuRepository(BaseRepository[MakineBolumu]):
         ad: str,
     ) -> MakineBolumu | None:
 
-        return self.get(
-            ad=ad,
-        )
+        return self.repository.get_by_ad(ad)
 
     # =====================================================
     # KONTROLLER
@@ -51,9 +45,7 @@ class MakineBolumuRepository(BaseRepository[MakineBolumu]):
         ad: str,
     ) -> bool:
 
-        return self.exists(
-            MakineBolumu.ad == ad
-        )
+        return self.repository.ad_var_mi(ad)
 
     # =====================================================
     # İSTATİSTİKLER
@@ -63,4 +55,4 @@ class MakineBolumuRepository(BaseRepository[MakineBolumu]):
         self,
     ) -> int:
 
-        return self.count()
+        return self.repository.toplam_bolum()

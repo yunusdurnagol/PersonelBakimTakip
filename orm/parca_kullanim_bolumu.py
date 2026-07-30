@@ -77,5 +77,5 @@ class ParcaKullanimBolumu(BaseModel):
             f"<ParcaKullanimBolumu("
             f"id={self.id}, "
             f"parca_id={self.parca_id}, "
-            f"bolum_id={self.bolum_id})>"
+            f"makine_bolumu_id={self.makine_bolumu_id})>"
         )
