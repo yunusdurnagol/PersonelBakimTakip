@@ -191,3 +191,20 @@ class ParcaHareketRepository(BaseRepository[ParcaHareket]):
         return self.count(
             ParcaHareket.tedarikci_id == tedarikci_id
         )
+
+
+    def son_hareketler(
+    self,
+    limit: int = 10,
+):
+
+        stmt = (
+            self.active_stmt()
+            .order_by(
+                ParcaHareket.alis_tarihi.desc(),
+                ParcaHareket.id.desc(),
+            )
+            .limit(limit)
+        )
+
+        return self.all(stmt)

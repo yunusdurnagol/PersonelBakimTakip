@@ -4,7 +4,7 @@ Proje      : Personel ve Bakım Yönetim Sistemi
 Dosya      : repositories/makine_repository.py
 Açıklama   : Makine Repository
 Yazar      : Yunus Durnagöl
-Sürüm      : 1.0.0
+Sürüm      : 2.0.0
 ---------------------------------------------------------
 """
 
@@ -36,38 +36,12 @@ class MakineRepository(BaseRepository[Makine]):
 
     def get_by_makine_kodu(
         self,
-        makine_kodu: str,
+        kod: str,
     ) -> Makine | None:
 
         return self.get(
-            makine_kodu=makine_kodu,
+            kod=kod,
         )
-
-    def get_by_seri_no(
-        self,
-        seri_no: str,
-    ) -> Makine | None:
-
-        return self.get(
-            seri_no=seri_no,
-        )
-
-    def get_by_bolum(
-        self,
-        bolum_id: int,
-    ) -> list[Makine]:
-
-        stmt = (
-            self.active_stmt()
-            .where(
-                Makine.bolum_id == bolum_id
-            )
-            .order_by(
-                Makine.makine_kodu
-            )
-        )
-
-        return self.all(stmt)
 
     # =====================================================
     # LİSTELER
@@ -80,7 +54,7 @@ class MakineRepository(BaseRepository[Makine]):
         stmt = (
             self.active_stmt()
             .order_by(
-                Makine.makine_kodu
+                Makine.kod
             )
         )
 
@@ -99,13 +73,12 @@ class MakineRepository(BaseRepository[Makine]):
             self.active_stmt()
             .where(
                 or_(
-                    Makine.makine_kodu.ilike(f"%{text}%"),
-                    Makine.makine_adi.ilike(f"%{text}%"),
-                    Makine.seri_no.ilike(f"%{text}%"),
+                    Makine.kod.ilike(f"%{text}%"),
+                    Makine.ad.ilike(f"%{text}%"),
                 )
             )
             .order_by(
-                Makine.makine_kodu
+                Makine.kod
             )
         )
 
@@ -117,20 +90,11 @@ class MakineRepository(BaseRepository[Makine]):
 
     def makine_kodu_var_mi(
         self,
-        makine_kodu: str,
+        kod: str,
     ) -> bool:
 
         return self.exists(
-            Makine.makine_kodu == makine_kodu
-        )
-
-    def seri_no_var_mi(
-        self,
-        seri_no: str,
-    ) -> bool:
-
-        return self.exists(
-            Makine.seri_no == seri_no
+            Makine.kod == kod
         )
 
     # =====================================================

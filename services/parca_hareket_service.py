@@ -126,3 +126,12 @@ class ParcaHareketService(BaseService):
         return self.repository.tedarikciye_gore_adet(
             tedarikci_id,
         )
+
+    def son_hareketler(
+        self,
+        limit: int = 10,
+    ):
+
+        return self.repository.son_hareketler(
+            limit,
+        )

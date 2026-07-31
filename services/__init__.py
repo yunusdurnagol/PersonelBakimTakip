@@ -17,7 +17,8 @@ from services.parca_muadili_service import ParcaMuadiliService
 from services.personel_evrak_service import PersonelEvrakService
 from services.personel_izin_service import PersonelIzinService
 from services.tedarikci_service import TedarikciService
-
+from services.makine_service import MakineService
+from services.dashboard_service import DashboardService
 __all__ = [
     "BaseService",
     "PersonelService",
@@ -31,33 +32,8 @@ __all__ = [
     "PersonelEvrakService",
     "PersonelIzinService",
     "TedarikciService",
-]
-
-
-"""
-
- 
-
- 
-
-__all__ = [
-    "BaseService",
-
-    "PersonelService",
-    "PozisyonService",
-
-    "ParcaService",
-    "ParcaHareketService",
-    "ParcaKategoriService",
-    "ParcaKullanimBolumuService",
-    "ParcaMarkaService",
-    "ParcaMuadiliService",
-
     "MakineService",
-    "MakineBolumuService",
-
-    "TedarikciService",
-
-    "IzinService",
+    "DashboardService",    
 ]
-"""
+
+ 

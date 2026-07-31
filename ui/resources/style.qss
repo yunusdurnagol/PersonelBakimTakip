@@ -1,0 +1,297 @@
+/*==========================================================
+    Personel ve Bakım Yönetim Sistemi
+    Office 365 Style
+==========================================================*/
+
+*{
+    font-family:"Segoe UI";
+    font-size:10pt;
+}
+
+
+/*==========================================================
+    Main Window
+==========================================================*/
+
+QMainWindow{
+    background:#f5f6f8;
+}
+
+
+/*==========================================================
+    Left Menu
+==========================================================*/
+
+QListWidget{
+
+    background:white;
+
+    border:none;
+
+    border-right:1px solid #d7d7d7;
+
+    outline:none;
+
+    padding:5px;
+}
+
+
+QListWidget::item{
+
+    height:38px;
+
+    border-radius:6px;
+
+    padding-left:10px;
+
+    margin:2px;
+
+}
+
+
+QListWidget::item:hover{
+
+    background:#e7f1ff;
+
+}
+
+
+QListWidget::item:selected{
+
+    background:#0a64d6;
+
+    color:white;
+
+    font-weight:bold;
+
+}
+
+
+/*==========================================================
+    Status Bar
+==========================================================*/
+
+QStatusBar{
+
+    background:white;
+
+    border-top:1px solid #d7d7d7;
+
+}
+
+
+/*==========================================================
+    TableView
+==========================================================*/
+
+QTableView{
+
+    background:white;
+
+    alternate-background-color:#f6f6f6;
+
+    selection-background-color:#0a64d6;
+
+    selection-color:white;
+
+    gridline-color:#dddddd;
+
+    border:1px solid #d7d7d7;
+
+}
+
+
+QHeaderView::section{
+
+    background:#f2f2f2;
+
+    border:none;
+
+    border-right:1px solid #dddddd;
+
+    border-bottom:1px solid #dddddd;
+
+    padding:6px;
+
+    font-weight:bold;
+
+}
+
+
+/*==========================================================
+    PushButton
+==========================================================*/
+
+QPushButton{
+
+    background:#0a64d6;
+
+    color:white;
+
+    border:none;
+
+    border-radius:6px;
+
+    min-height:34px;
+
+    padding-left:15px;
+
+    padding-right:15px;
+
+}
+
+
+QPushButton:hover{
+
+    background:#1d74df;
+
+}
+
+
+QPushButton:pressed{
+
+    background:#084fa8;
+
+}
+
+
+/*==========================================================
+    LineEdit
+==========================================================*/
+
+QLineEdit{
+
+    background:white;
+
+    border:1px solid #c8c8c8;
+
+    border-radius:6px;
+
+    padding-left:8px;
+
+    min-height:32px;
+
+}
+
+
+QLineEdit:focus{
+
+    border:2px solid #0a64d6;
+
+}
+
+
+/*==========================================================
+    ComboBox
+==========================================================*/
+
+QComboBox{
+
+    background:white;
+
+    border:1px solid #c8c8c8;
+
+    border-radius:6px;
+
+    min-height:32px;
+
+    padding-left:8px;
+
+}
+
+
+/*==========================================================
+    DateEdit
+==========================================================*/
+
+QDateEdit{
+
+    background:white;
+
+    border:1px solid #c8c8c8;
+
+    border-radius:6px;
+
+    min-height:32px;
+
+    padding-left:8px;
+
+}
+
+
+/*==========================================================
+    SpinBox
+==========================================================*/
+
+QSpinBox,
+QDoubleSpinBox{
+
+    background:white;
+
+    border:1px solid #c8c8c8;
+
+    border-radius:6px;
+
+    min-height:32px;
+
+    padding-left:8px;
+
+}
+
+
+/*==========================================================
+    TextEdit
+==========================================================*/
+
+QTextEdit{
+
+    background:white;
+
+    border:1px solid #c8c8c8;
+
+    border-radius:6px;
+
+}
+
+
+/*==========================================================
+    GroupBox
+==========================================================*/
+
+QGroupBox{
+
+    font-weight:bold;
+
+    border:1px solid #d8d8d8;
+
+    border-radius:8px;
+
+    margin-top:10px;
+
+    background:white;
+
+}
+
+
+QGroupBox::title{
+
+    left:10px;
+
+    padding-left:5px;
+
+    padding-right:5px;
+
+}
+
+
+/*==========================================================
+    Splitter
+==========================================================*/
+
+QSplitter::handle{
+
+    background:#dddddd;
+
+    width:1px;
+
+}

@@ -175,3 +175,18 @@ class PersonelService(BaseService):
     ) -> int:
 
         return self.repository.toplam_personel()
+
+    def get_tum_personeller(
+    self,
+) -> list[Personel]:
+
+        return self.repository.get_all()
+
+def son_eklenenler(
+    self,
+    limit: int = 10,
+):
+
+    return self.repository.son_eklenenler(
+        limit,
+    )
