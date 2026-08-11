@@ -1,3 +1,4 @@
+ 
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
@@ -12,12 +13,13 @@ from __future__ import annotations
 
 from orm.pozisyon import Pozisyon
 from repositories.pozisyon_repository import PozisyonRepository
-from services.base_service import BaseService
 
 
-class PozisyonService(BaseService[Pozisyon]):
+class PozisyonService:
     """
-    Pozisyon Service
+    Pozisyon işlemlerinin servis katmanı.
+
+    UI katmanı bu sınıf üzerinden pozisyon verilerine erişir.
     """
 
     def __init__(
@@ -25,10 +27,43 @@ class PozisyonService(BaseService[Pozisyon]):
         repository: PozisyonRepository,
     ) -> None:
 
-        super().__init__(repository)
+        self.repository = repository
 
     # =====================================================
-    # GET METHODS
+    # GET
+    # =====================================================
+
+    def get_by_id(
+        self,
+        pozisyon_id: int,
+    ) -> Pozisyon | None:
+
+        return self.repository.get_by_id(
+            pozisyon_id
+        )
+
+    # =====================================================
+    # TÜM POZİSYONLAR
+    # =====================================================
+
+    def get_tum_pozisyonlar(
+        self,
+    ) -> list[Pozisyon]:
+
+        return self.repository.get_tum_pozisyonlar()
+
+    # =====================================================
+    # AKTİF POZİSYONLAR
+    # =====================================================
+
+    def get_aktif_pozisyonlar(
+        self,
+    ) -> list[Pozisyon]:
+
+        return self.repository.get_tum_pozisyonlar()
+
+    # =====================================================
+    # POZİSYON BUL
     # =====================================================
 
     def get_by_ad(
@@ -36,10 +71,12 @@ class PozisyonService(BaseService[Pozisyon]):
         ad: str,
     ) -> Pozisyon | None:
 
-        return self.repository.get_by_ad(ad)
+        return self.repository.get_by_ad(
+            ad.strip()
+        )
 
     # =====================================================
-    # SEARCH
+    # ARAMA
     # =====================================================
 
     def search(
@@ -47,10 +84,12 @@ class PozisyonService(BaseService[Pozisyon]):
         text: str,
     ) -> list[Pozisyon]:
 
-        return self.repository.search(text)
+        return self.repository.search(
+            text.strip()
+        )
 
     # =====================================================
-    # KONTROLLER
+    # KONTROL
     # =====================================================
 
     def ad_var_mi(
@@ -58,14 +97,15 @@ class PozisyonService(BaseService[Pozisyon]):
         ad: str,
     ) -> bool:
 
-        return self.repository.ad_var_mi(ad)
+        return self.repository.ad_var_mi(
+            ad.strip()
+        )
 
     # =====================================================
-    # İSTATİSTİKLER
+    # İSTATİSTİK
     # =====================================================
 
-    def toplam_pozisyon(
-        self,
-    ) -> int:
+    def toplam_pozisyon(self) -> int:
 
         return self.repository.toplam_pozisyon()
+ 

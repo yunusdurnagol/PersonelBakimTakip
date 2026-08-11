@@ -8,6 +8,8 @@ Sürüm      : 1.0.0
 ---------------------------------------------------------
 """
 
+from __future__ import annotations
+
 from datetime import date
 
 from sqlalchemy.orm import Session
@@ -16,9 +18,22 @@ from orm.personel_izin import PersonelIzin
 from repositories.base_repository import BaseRepository
 
 
-class PersonelIzinRepository(BaseRepository[PersonelIzin]):
+class PersonelIzinRepository(
+    BaseRepository[PersonelIzin]
+):
     """
-    Personel İzin Repository
+    Personel İzin Repository.
+
+    UI veya Service katmanı veritabanına
+    doğrudan erişmez.
+
+    UI
+        ↓
+    PersonelIzinService
+        ↓
+    PersonelIzinRepository
+        ↓
+    PersonelIzin ORM
     """
 
     def __init__(
@@ -39,6 +54,11 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
         self,
         personel_id: int,
     ) -> list[PersonelIzin]:
+        """
+        Belirli personele ait izinleri getirir.
+
+        En son eklenen izin üstte görünür.
+        """
 
         stmt = (
             self.active_stmt()
@@ -46,7 +66,29 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
                 PersonelIzin.personel_id == personel_id
             )
             .order_by(
-                PersonelIzin.izin_baslangic.desc()
+                PersonelIzin.id.desc()
+            )
+        )
+
+        return self.all(stmt)
+
+    # =====================================================
+    # TÜM İZİNLER
+    # =====================================================
+
+    def get_tum_izinler(
+        self,
+    ) -> list[PersonelIzin]:
+        """
+        Tüm aktif izin kayıtlarını getirir.
+
+        En son eklenen izin üstte görünür.
+        """
+
+        stmt = (
+            self.active_stmt()
+            .order_by(
+                PersonelIzin.id.desc()
             )
         )
 
@@ -60,6 +102,9 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
         self,
         tarih: date,
     ) -> list[PersonelIzin]:
+        """
+        Belirli bir tarihte izinli olan personelleri getirir.
+        """
 
         stmt = (
             self.active_stmt()
@@ -70,7 +115,7 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
                 PersonelIzin.izin_bitis >= tarih
             )
             .order_by(
-                PersonelIzin.izin_baslangic
+                PersonelIzin.id.desc()
             )
         )
 
@@ -84,6 +129,14 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
         self,
         text: str,
     ) -> list[PersonelIzin]:
+        """
+        İzin nedeni ve açıklama üzerinden arama yapar.
+        """
+
+        text = text.strip()
+
+        if not text:
+            return self.get_tum_izinler()
 
         stmt = (
             self.active_stmt()
@@ -93,7 +146,7 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
                 )
             )
             .order_by(
-                PersonelIzin.izin_baslangic.desc()
+                PersonelIzin.id.desc()
             )
         )
 
@@ -107,6 +160,9 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
         self,
         personel_id: int,
     ) -> bool:
+        """
+        Personelin en az bir izin kaydı var mı?
+        """
 
         return self.exists(
             PersonelIzin.personel_id == personel_id
@@ -119,5 +175,34 @@ class PersonelIzinRepository(BaseRepository[PersonelIzin]):
     def toplam_izin(
         self,
     ) -> int:
+        """
+        Aktif toplam izin kayıt sayısını döndürür.
+        """
 
         return self.count()
+
+    # =====================================================
+    # PERSONELİN KULLANDIĞI TOPLAM GÜN
+    # =====================================================
+
+    def toplam_kullanilan_izin_gunu(
+        self,
+        personel_id: int,
+    ) -> int:
+        """
+        Personelin kayıtlı izinlerinde
+        manuel girilmiş izin günlerini toplar.
+
+        DİKKAT:
+        İzin hakkı hesaplamaz.
+        Sadece kayıtlı izin_gun_sayisi değerlerini toplar.
+        """
+
+        izinler = self.get_by_personel(
+            personel_id
+        )
+
+        return sum(
+            izin.izin_gun_sayisi
+            for izin in izinler
+        )

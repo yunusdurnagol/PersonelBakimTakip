@@ -7,26 +7,13 @@ Yazar      : Yunus Durnagöl
 Sürüm      : 2.0.0
 ---------------------------------------------------------
 """
-from datetime import datetime
-from sqlalchemy.orm import Session
-from PySide6.QtCore import Qt
-from PySide6.QtCore import QTimer
-from services.dashboard_service import DashboardService
-from services.personel_service import PersonelService
-from services.makine_service import MakineService
-from services.parca_hareket_service import ParcaHareketService
-from services.parca_service import ParcaService
-from services.tedarikci_service import TedarikciService
-from core.database import SessionLocal
-from repositories.personel_repository import PersonelRepository
-from repositories.makine_repository import MakineRepository
-from repositories.parca_hareket_repository import ParcaHareketRepository
-from repositories.tedarikci_repository import TedarikciRepository
-from repositories.parca_repository import ParcaRepository
+ 
+ 
 from PySide6.QtGui import QColor
 from PySide6.QtGui import QFont
-from orm.personel import Personel
-from orm.parca_hareket import ParcaHareket
+ 
+ 
+ 
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -99,40 +86,18 @@ class DashboardCard(QFrame):
 
 class DashboardPage(QWidget):
 
-    def __init__(self,):
+    def __init__(
+        self,
+        dashboard_service,
+    ):
 
         super().__init__()
-        self.session = SessionLocal()
-        self.personel_service = PersonelService(
-            PersonelRepository(self.session)
-        )
 
-        self.makine_service = MakineService(
-            MakineRepository(self.session)
-        )
-
-        self.parca_service = ParcaService(
-            ParcaRepository(self.session)
-        )
-
-        self.tedarikci_service = TedarikciService(
-            TedarikciRepository(self.session)
-        )
-
-        self.parca_hareket_service = ParcaHareketService(
-            ParcaHareketRepository(self.session)
-        )
-
-        self.dashboard_service = DashboardService(
-            self.personel_service,
-            self.makine_service,
-            self.parca_service,
-            self.tedarikci_service,
-            self.parca_hareket_service,
-        )
-
+        self.dashboard_service = dashboard_service
 
         self.create_ui()
+
+        self.load_tables()
     
 
     # =====================================================
@@ -157,14 +122,8 @@ class DashboardPage(QWidget):
             )
         )
 
-         
-
-        
-         
-
         header.addWidget(title)
         header.addStretch()
-         
 
         main.addLayout(header)
 
@@ -173,11 +132,6 @@ class DashboardPage(QWidget):
         cards = QGridLayout()
         kartlar = self.dashboard_service.kart_verileri()
 
-         
-        
-        
-
-         
 
         self.lbl_personel = DashboardCard(
             "👨",
@@ -219,7 +173,7 @@ class DashboardPage(QWidget):
         ####################################################
 
         bottom = QHBoxLayout()
-
+        
         self.personel_frame, self.tbl_personeller = self.create_table(
             "Son Eklenen Personeller",
             [
@@ -229,6 +183,7 @@ class DashboardPage(QWidget):
             ],
         )
 
+        
         self.hareket_frame, self.tbl_hareket = self.create_table(
             "Son Parça Hareketleri",
             [
@@ -243,7 +198,7 @@ class DashboardPage(QWidget):
         bottom.addWidget(self.hareket_frame)
 
         main.addLayout(bottom)
-        self.load_tables()
+         
     # =====================================================
 
     def create_table(
@@ -330,12 +285,7 @@ class DashboardPage(QWidget):
         # Son 10 Personel
         # ----------------------------------
 
-        personeller = (
-            self.session.query(Personel)
-            .order_by(Personel.id.desc())
-            .limit(10)
-            .all()
-        )
+        personeller = self.dashboard_service.son_personeller()
 
         self.tbl_personeller.setRowCount(len(personeller))
 
@@ -370,12 +320,7 @@ class DashboardPage(QWidget):
         # Son 10 Parça Hareketi
         # ----------------------------------
 
-        hareketler = (
-            self.session.query(ParcaHareket)
-            .order_by(ParcaHareket.id.desc())
-            .limit(10)
-            .all()
-        )
+        hareketler = self.dashboard_service.son_hareketler()
 
         self.tbl_hareket.setRowCount(len(hareketler))
 

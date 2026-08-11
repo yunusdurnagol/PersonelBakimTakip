@@ -25,6 +25,7 @@ from sqlalchemy.orm import relationship
 
 from orm.base_model import BaseModel
 
+
 if TYPE_CHECKING:
     from orm.personel import Personel
 
@@ -32,6 +33,9 @@ if TYPE_CHECKING:
 class PersonelIzin(BaseModel):
     """
     Personel izin bilgileri.
+
+    İzin gün sayısı sistem tarafından hesaplanmaz.
+    Kullanıcı tarafından manuel olarak girilir.
     """
 
     __tablename__ = "personel_izinleri"
@@ -60,15 +64,28 @@ class PersonelIzin(BaseModel):
         nullable=False,
     )
 
+    # =====================================================
+    # Kullanılan İzin Günü
+    # =====================================================
+
     izin_gun_sayisi: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
     )
 
+    # =====================================================
+    # İzin Nedeni
+    # =====================================================
+
     izin_nedeni: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
+        default="Yıllık İzin",
     )
+
+    # =====================================================
+    # Açıklama
+    # =====================================================
 
     aciklama: Mapped[str | None] = mapped_column(
         Text,
@@ -95,5 +112,7 @@ class PersonelIzin(BaseModel):
             f"id={self.id}, "
             f"personel_id={self.personel_id}, "
             f"baslangic={self.izin_baslangic}, "
-            f"bitis={self.izin_bitis})>"
+            f"bitis={self.izin_bitis}, "
+            f"izin_gun_sayisi={self.izin_gun_sayisi}, "
+            f"izin_nedeni='{self.izin_nedeni}')>"
         )

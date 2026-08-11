@@ -1,13 +1,17 @@
+
 """
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
 Dosya      : repositories/pozisyon_repository.py
 Açıklama   : Pozisyon Repository
 Yazar      : Yunus Durnagöl
-Sürüm      : 2.0.0
+Sürüm      : 1.0.0
 ---------------------------------------------------------
 """
 
+from __future__ import annotations
+
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from orm.pozisyon import Pozisyon
@@ -16,7 +20,7 @@ from repositories.base_repository import BaseRepository
 
 class PozisyonRepository(BaseRepository[Pozisyon]):
     """
-    Pozisyon Repository
+    Pozisyon veritabanı işlemleri.
     """
 
     def __init__(
@@ -30,7 +34,7 @@ class PozisyonRepository(BaseRepository[Pozisyon]):
         )
 
     # =====================================================
-    # GET METHODS
+    # GET
     # =====================================================
 
     def get_by_ad(
@@ -43,6 +47,23 @@ class PozisyonRepository(BaseRepository[Pozisyon]):
         )
 
     # =====================================================
+    # TÜM POZİSYONLAR
+    # =====================================================
+
+    def get_tum_pozisyonlar(
+        self,
+    ) -> list[Pozisyon]:
+
+        stmt = (
+            self.active_stmt()
+            .order_by(
+                Pozisyon.ad.asc()
+            )
+        )
+
+        return self.all(stmt)
+
+    # =====================================================
     # SEARCH
     # =====================================================
 
@@ -51,20 +72,27 @@ class PozisyonRepository(BaseRepository[Pozisyon]):
         text: str,
     ) -> list[Pozisyon]:
 
+        text = text.strip()
+
+        if not text:
+            return self.get_tum_pozisyonlar()
+
         stmt = (
             self.active_stmt()
             .where(
-                Pozisyon.ad.ilike(f"%{text}%")
+                Pozisyon.ad.ilike(
+                    f"%{text}%"
+                )
             )
             .order_by(
-                Pozisyon.ad
+                Pozisyon.ad.asc()
             )
         )
 
         return self.all(stmt)
 
     # =====================================================
-    # KONTROLLER
+    # KONTROL
     # =====================================================
 
     def ad_var_mi(
@@ -77,11 +105,12 @@ class PozisyonRepository(BaseRepository[Pozisyon]):
         )
 
     # =====================================================
-    # İSTATİSTİKLER
+    # İSTATİSTİK
     # =====================================================
 
-    def toplam_pozisyon(
-        self,
-    ) -> int:
+    def toplam_pozisyon(self) -> int:
 
-        return self.count()
+        return self.count_stmt(
+            self.active_stmt()
+        )
+ 

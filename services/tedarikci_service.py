@@ -12,7 +12,6 @@ from orm.tedarikci import Tedarikci
 from repositories.tedarikci_repository import TedarikciRepository
 from services.base_service import BaseService
 
-
 class TedarikciService(BaseService[Tedarikci]):
     """
     Tedarikçi Service

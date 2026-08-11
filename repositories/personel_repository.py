@@ -266,15 +266,21 @@ class PersonelRepository(BaseRepository[Personel]):
         return self.count()
 
 
+ 
+
+    # =====================================================
+    # SON EKLENENLER
+    # =====================================================
+
     def son_eklenenler(
-    self,
-    limit: int = 10,
-) -> list[Personel]:
+        self,
+        limit: int = 10,
+    ) -> list[Personel]:
 
         stmt = (
             self.active_stmt()
             .order_by(
-                Personel.created_at.desc()
+                Personel.id.desc()
             )
             .limit(limit)
         )

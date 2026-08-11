@@ -9,18 +9,18 @@ class DashboardService:
 
     def __init__(
         self,
-        personel_service: PersonelService,
-        makine_service: MakineService,
-        parca_service: ParcaService,
-        tedarikci_service: TedarikciService,
-        hareket_service: ParcaHareketService,
+        personel_service,
+        makine_service,
+        parca_service,
+        tedarikci_service,
+        parca_hareket_service,
     ):
 
         self.personel_service = personel_service
         self.makine_service = makine_service
         self.parca_service = parca_service
         self.tedarikci_service = tedarikci_service
-        self.hareket_service = hareket_service
+        self.parca_hareket_service = parca_hareket_service
 
     def kart_verileri(self):
 
@@ -38,4 +38,4 @@ class DashboardService:
 
     def son_hareketler(self):
 
-        return self.hareket_service.son_hareketler(10)
+        return self.parca_hareket_service.son_hareketler(10)

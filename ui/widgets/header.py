@@ -2,116 +2,199 @@
 ---------------------------------------------------------
 Proje      : Personel ve Bakım Yönetim Sistemi
 Dosya      : ui/widgets/header.py
-Açıklama   : Modern Header
+Açıklama   : Header Widget
 Yazar      : Yunus Durnagöl
-Sürüm      : 1.0.0
+Sürüm      : 2.0.0
 ---------------------------------------------------------
 """
 
-from datetime import datetime
+from __future__ import annotations
 
-from PySide6.QtCore import Qt
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import Qt, Signal
 
-from PySide6.QtGui import QFont
+from PySide6.QtGui import (
+    QFont,
+)
 
 from PySide6.QtWidgets import (
-    QFrame,
+    QWidget,
     QLabel,
+    QPushButton,
     QHBoxLayout,
-    QVBoxLayout,
+    QFrame,
 )
 
 
 class Header(QFrame):
+    """
+    Uygulamanın üst bilgi alanı.
+
+    Sol tarafta:
+        ☰ Menü Butonu
+        Sayfa Başlığı
+
+    Sağ tarafta:
+        Kullanıcı bilgileri
+    """
+
+    ####################################################
+    # Signals
+    ####################################################
+    toggleMenuRequested = Signal()
+     
+
+    ####################################################
 
     def __init__(self):
 
         super().__init__()
 
-        self.setObjectName("Header")
-
-        self.setFixedHeight(70)
-
-        self.setStyleSheet("""
-        #Header{
-            background:white;
-            border:none;
-            border-bottom:1px solid #E5E7EB;
-        }
-
-        QLabel{
-            color:#1F2937;
-        }
-        """)
-
         self.create_ui()
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_clock)
-        self.timer.start(1000)
+        self.create_connections()
 
-        self.update_clock()
-
+    # =====================================================
+    # UI
     # =====================================================
 
     def create_ui(self):
 
+        self.setObjectName("Header")
+
+        self.setFixedHeight(70)
+
         layout = QHBoxLayout(self)
 
-        layout.setContentsMargins(25, 10, 25, 10)
+        layout.setContentsMargins(
+            20,
+            0,
+            20,
+            0,
+        )
+
+        layout.setSpacing(12)
 
         ####################################################
+        # MENU BUTTON
+        ####################################################
 
-        self.lbl_title = QLabel("🏠 Dashboard")
+        self.btn_menu = QPushButton("☰")
+
+        self.btn_menu.setObjectName(
+            "MenuButton"
+        )
+
+        self.btn_menu.setFixedSize(
+            42,
+            42,
+        )
+
+        layout.addWidget(
+            self.btn_menu,
+            alignment=Qt.AlignVCenter,
+        )
+
+        ####################################################
+        # PAGE TITLE
+        ####################################################
+
+        self.lbl_title = QLabel(
+            "🏠 Dashboard"
+        )
 
         self.lbl_title.setFont(
             QFont(
                 "Segoe UI",
-                18,
+                16,
                 QFont.Bold,
             )
         )
 
-        layout.addWidget(self.lbl_title)
+        layout.addWidget(
+            self.lbl_title,
+            alignment=Qt.AlignVCenter,
+        )
 
         layout.addStretch()
 
         ####################################################
+        # USER
+        ####################################################
 
-        right = QVBoxLayout()
-
-        self.lbl_time = QLabel()
-
-        self.lbl_time.setAlignment(
-            Qt.AlignRight
+        self.lbl_user = QLabel(
+            "👤 Yönetici"
         )
 
-        self.lbl_time.setFont(
+        self.lbl_user.setFont(
             QFont(
                 "Segoe UI",
-                11,
-                QFont.Bold,
+                10,
             )
         )
 
-        self.lbl_user = QLabel(
-            "👤 Yunus Durnagöl"
+        layout.addWidget(
+            self.lbl_user,
+            alignment=Qt.AlignVCenter,
         )
 
-        self.lbl_user.setAlignment(
-            Qt.AlignRight
+        ####################################################
+        # STYLE
+        ####################################################
+
+        self.setStyleSheet(
+            """
+            QFrame#Header{
+
+                background:white;
+
+                border-bottom:1px solid #E5E7EB;
+
+            }
+
+            QPushButton#MenuButton{
+
+                    border:1px solid #E5E7EB;
+
+                    border-radius:8px;
+
+                    background:#FFFFFF;
+
+                    font-size:24px;
+
+                    font-weight:bold;
+
+                    color:#1F2937;
+
+            }
+
+            QPushButton#MenuButton:hover{
+
+                background:#EEF4FF;
+
+                color:#2563EB;
+
+            }
+
+            QLabel{
+
+                color:#222;
+
+            }
+            """
         )
 
-        self.lbl_user.setStyleSheet("""
-        color:#6B7280;
-        """)
+    # =====================================================
+    # CONNECTIONS
+    # =====================================================
 
-        right.addWidget(self.lbl_time)
-        right.addWidget(self.lbl_user)
+    def create_connections(self):
+        
+        self.btn_menu.clicked.connect(
+            self.toggleMenuRequested.emit
+        )
 
-        layout.addLayout(right)
-
+    # =====================================================
+    # TITLE
     # =====================================================
 
     def set_page_title(
@@ -123,16 +206,19 @@ class Header(QFrame):
 
     # =====================================================
 
-    def update_clock(self):
+    def page_title(self) -> str:
 
-        now = datetime.now()
+        return self.lbl_title.text()
 
-        self.lbl_time.setText(
+    # =====================================================
+    # USER
+    # =====================================================
 
-            now.strftime(
+    def set_user_name(
+        self,
+        name: str,
+    ):
 
-                "%d.%m.%Y   %H:%M:%S"
-
-            )
-
+        self.lbl_user.setText(
+            f"👤 {name}"
         )

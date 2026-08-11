@@ -46,7 +46,7 @@ class PersonelEvrakRepository(
                 PersonelEvrak.personel_id == personel_id
             )
             .order_by(
-                PersonelEvrak.evrak_adi
+                PersonelEvrak.id.desc()
             )
         )
 
@@ -78,7 +78,7 @@ class PersonelEvrakRepository(
                 )
             )
             .order_by(
-                PersonelEvrak.evrak_adi
+                PersonelEvrak.id.asc()
             )
         )
 
@@ -88,17 +88,7 @@ class PersonelEvrakRepository(
     # KONTROLLER
     # =====================================================
 
-    def evrak_var_mi(
-        self,
-        personel_id: int,
-        evrak_adi: str,
-    ) -> bool:
-
-        return self.exists(
-            PersonelEvrak.personel_id == personel_id,
-            PersonelEvrak.evrak_adi == evrak_adi,
-        )
-
+ 
     # =====================================================
     # İSTATİSTİKLER
     # =====================================================
